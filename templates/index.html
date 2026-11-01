@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DataViz – Interactive Data Distribution & Analysis Dashboard</title>
+  <meta name="description" content="Professional interactive data visualization dashboard for bar charts, histograms, and statistical analysis of your datasets." />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <i class="bi bi-bar-chart-fill"></i>
+    </div>
+    <div class="brand-text">
+      <span class="brand-name">DataViz</span>
+      <span class="brand-tagline">Analysis Dashboard</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">MAIN</div>
+    <a class="nav-link active" data-section="overview" href="#" onclick="showSection('overview')">
+      <i class="bi bi-grid-fill"></i><span>Dashboard Overview</span>
+    </a>
+    <a class="nav-link" data-section="upload" href="#" onclick="showSection('upload')">
+      <i class="bi bi-cloud-upload-fill"></i><span>Dataset Upload</span>
+    </a>
+
+    <div class="nav-section-label">VISUALIZE</div>
+    <a class="nav-link" data-section="barchart" href="#" onclick="showSection('barchart')">
+      <i class="bi bi-bar-chart-line-fill"></i><span>Bar Chart</span>
+    </a>
+    <a class="nav-link" data-section="histogram" href="#" onclick="showSection('histogram')">
+      <i class="bi bi-activity"></i><span>Histogram</span>
+    </a>
+
+    <div class="nav-section-label">INSIGHTS</div>
+    <a class="nav-link" data-section="analysis" href="#" onclick="showSection('analysis')">
+      <i class="bi bi-cpu-fill"></i><span>Data Analysis</span>
+    </a>
+    <a class="nav-link" data-section="export" href="#" onclick="showSection('export')">
+      <i class="bi bi-download"></i><span>Export & Download</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-sidebar-reset" onclick="resetDashboard()">
+      <i class="bi bi-arrow-counterclockwise"></i> Reset Dashboard
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════ -->
+<div class="main-content" id="mainContent">
+
+  <!-- TOP NAVBAR -->
+  <nav class="top-navbar">
+    <div class="navbar-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="breadcrumb-nav">
+        <span id="currentSection">Dashboard Overview</span>
+      </div>
+    </div>
+    <div class="navbar-right">
+      <div class="dataset-status" id="datasetStatus">
+        <i class="bi bi-database-x"></i>
+        <span>No Dataset Loaded</span>
+      </div>
+      <button class="btn-icon" onclick="showSection('upload')" title="Upload dataset">
+        <i class="bi bi-cloud-upload"></i>
+      </button>
+      <button class="btn-icon" onclick="resetDashboard()" title="Reset">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─── SECTION: OVERVIEW ─── -->
+  <section class="content-section active" id="section-overview">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Dashboard Overview</h1>
+        <p class="section-subtitle">Welcome to DataViz — your interactive data distribution & analysis platform.</p>
+      </div>
+      <button class="btn-primary-custom" onclick="showSection('upload')">
+        <i class="bi bi-plus-lg"></i> Load Dataset
+      </button>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon"><i class="bi bi-database-fill"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-records">—</span>
+          <span class="stat-label">Total Records</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card stat-purple">
+        <div class="stat-icon"><i class="bi bi-layout-three-columns"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-columns">—</span>
+          <span class="stat-label">Total Columns</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card stat-teal">
+        <div class="stat-icon"><i class="bi bi-tags-fill"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-categorical">—</span>
+          <span class="stat-label">Categorical Variables</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-icon"><i class="bi bi-123"></i></div>
+        <div class="stat-info">
+          <span class="stat-value" id="stat-numerical">—</span>
+          <span class="stat-label">Numerical Variables</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+    </div>
+
+    <!-- No dataset placeholder -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <i class="bi bi-cloud-upload"></i>
+      </div>
+      <h3>No Dataset Loaded</h3>
+      <p>Upload a CSV or Excel file, or use the built-in sample dataset to explore all features.</p>
+      <div class="d-flex gap-3 justify-content-center mt-3">
+        <button class="btn-primary-custom" onclick="showSection('upload')">
+          <i class="bi bi-upload"></i> Upload Your Dataset
+        </button>
+        <button class="btn-outline-custom" onclick="loadSampleDataset()">
+          <i class="bi bi-database"></i> Load Sample Dataset
+        </button>
+      </div>
+    </div>
+
+    <!-- Dataset loaded state -->
+    <div class="dataset-loaded-overview d-none" id="overviewLoaded">
+      <div class="overview-grid">
+        <div class="glass-card">
+          <h5><i class="bi bi-info-circle-fill text-info me-2"></i>Dataset Info</h5>
+          <div id="overviewDatasetInfo"></div>
+        </div>
+        <div class="glass-card">
+          <h5><i class="bi bi-columns-gap text-warning me-2"></i>Column Summary</h5>
+          <div id="overviewColumnSummary" class="column-summary-list"></div>
+        </div>
+      </div>
+
+      <div class="glass-card mt-4">
+        <h5><i class="bi bi-table text-success me-2"></i>Data Preview <small class="text-muted fs-6">(first 10 rows)</small></h5>
+        <div class="table-wrapper">
+          <table class="data-table" id="previewTable">
+            <thead id="previewTableHead"></thead>
+            <tbody id="previewTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="quick-actions mt-4">
+        <h5 class="mb-3"><i class="bi bi-lightning-fill text-warning me-2"></i>Quick Visualize</h5>
+        <div class="d-flex gap-3 flex-wrap">
+          <button class="btn-primary-custom" onclick="showSection('barchart')">
+            <i class="bi bi-bar-chart-line-fill"></i> Bar Chart
+          </button>
+          <button class="btn-primary-custom" style="--accent:#a855f7;" onclick="showSection('histogram')">
+            <i class="bi bi-activity"></i> Histogram
+          </button>
+          <button class="btn-primary-custom" style="--accent:#14b8a6;" onclick="showSection('analysis')">
+            <i class="bi bi-cpu-fill"></i> Full Analysis
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SECTION: UPLOAD ─── -->
+  <section class="content-section" id="section-upload">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Dataset Upload</h1>
+        <p class="section-subtitle">Upload your CSV or Excel file, or explore with the sample population dataset.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="glass-card">
+          <h5 class="mb-4"><i class="bi bi-cloud-upload-fill text-primary me-2"></i>Upload Your Dataset</h5>
+
+          <!-- Drop Zone -->
+          <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-content">
+              <div class="drop-icon"><i class="bi bi-file-earmark-spreadsheet"></i></div>
+              <h4>Drag & Drop your file here</h4>
+              <p class="text-muted">or click to browse files</p>
+              <span class="file-types">Supports: CSV, XLSX, XLS</span>
+            </div>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFileSelect(event)" />
+          </div>
+
+          <div class="text-center mt-3">
+            <button class="btn-primary-custom" onclick="document.getElementById('fileInput').click()">
+              <i class="bi bi-folder2-open"></i> Browse Files
+            </button>
+          </div>
+
+          <div id="uploadProgress" class="upload-progress d-none">
+            <div class="progress-bar-wrapper">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <span id="uploadStatusText">Uploading...</span>
+          </div>
+
+          <div id="uploadError" class="alert-custom alert-error d-none mt-3"></div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="glass-card sample-card">
+          <div class="sample-badge">BUILT-IN</div>
+          <h5 class="mb-2"><i class="bi bi-people-fill text-teal me-2"></i>Sample Population Dataset</h5>
+          <p class="text-muted small mb-3">200 records with 11 columns including Age, Salary, Gender, Department, Education, and more.</p>
+
+          <div class="sample-columns mb-4">
+            <span class="col-badge numerical">Age</span>
+            <span class="col-badge numerical">Salary</span>
+            <span class="col-badge numerical">Score</span>
+            <span class="col-badge categorical">Gender</span>
+            <span class="col-badge categorical">Education</span>
+            <span class="col-badge categorical">Department</span>
+            <span class="col-badge categorical">Occupation</span>
+            <span class="col-badge categorical">City</span>
+          </div>
+
+          <button class="btn-primary-custom w-100" onclick="loadSampleDataset()">
+            <i class="bi bi-database-fill-check"></i> Load Sample Dataset
+          </button>
+        </div>
+
+        <div class="glass-card mt-4">
+          <h6><i class="bi bi-lightbulb-fill text-warning me-2"></i>Tips</h6>
+          <ul class="tips-list">
+            <li>Ensure your file has a <strong>header row</strong> as the first row.</li>
+            <li>Numeric columns will be detected automatically.</li>
+            <li>Maximum file size: <strong>16 MB</strong></li>
+            <li>Supported formats: <strong>CSV, XLSX, XLS</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loaded Dataset Info -->
+    <div class="d-none mt-4" id="uploadedDataInfo">
+      <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Dataset Loaded Successfully</h5>
+          <span class="badge-filename" id="loadedFilename"></span>
+        </div>
+        <div class="row g-3" id="datasetInfoCards"></div>
+      </div>
+
+      <div class="glass-card mt-4">
+        <h5><i class="bi bi-table text-info me-2"></i>Data Preview <small class="text-muted">(first 10 rows)</small></h5>
+        <div class="table-wrapper">
+          <table class="data-table" id="uploadPreviewTable">
+            <thead id="uploadPreviewHead"></thead>
+            <tbody id="uploadPreviewBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="glass-card mt-4">
+        <h5><i class="bi bi-columns-gap text-warning me-2"></i>Column Details</h5>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Column Name</th>
+                <th>Data Type</th>
+                <th>Variable Type</th>
+                <th>Unique Values</th>
+                <th>Missing Values</th>
+              </tr>
+            </thead>
+            <tbody id="columnDetailsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SECTION: BAR CHART ─── -->
+  <section class="content-section" id="section-barchart">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Bar Chart</h1>
+        <p class="section-subtitle">Visualize the frequency distribution of categorical variables.</p>
+      </div>
+    </div>
+
+    <div class="no-data-notice d-none" id="barNoData">
+      <i class="bi bi-exclamation-triangle-fill"></i> Please load a dataset first.
+      <button class="btn-sm-link ms-2" onclick="showSection('upload')">Go to Upload</button>
+    </div>
+
+    <div id="barChartContent">
+      <div class="row g-4">
+        <!-- Controls -->
+        <div class="col-lg-3">
+          <div class="glass-card controls-card">
+            <h6 class="control-header"><i class="bi bi-sliders"></i> Chart Controls</h6>
+
+            <label class="control-label">Select Column</label>
+            <select class="custom-select" id="barColumnSelect" onchange="updateBarChart()">
+              <option value="">-- Select Column --</option>
+            </select>
+
+            <label class="control-label mt-3">Orientation</label>
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="btnVertical" onclick="setOrientation('vertical')">
+                <i class="bi bi-bar-chart-fill"></i> Vertical
+              </button>
+              <button class="toggle-btn" id="btnHorizontal" onclick="setOrientation('horizontal')">
+                <i class="bi bi-bar-chart-steps"></i> Horizontal
+              </button>
+            </div>
+
+            <label class="control-label mt-3">Color Palette</label>
+            <div class="color-palette" id="colorPalette">
+              <div class="color-swatch active" data-palette="0" style="background:linear-gradient(135deg,#6366f1,#818cf8)" onclick="setPalette(0)"></div>
+              <div class="color-swatch" data-palette="1" style="background:linear-gradient(135deg,#10b981,#34d399)" onclick="setPalette(1)"></div>
+              <div class="color-swatch" data-palette="2" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)" onclick="setPalette(2)"></div>
+              <div class="color-swatch" data-palette="3" style="background:linear-gradient(135deg,#ef4444,#f87171)" onclick="setPalette(3)"></div>
+              <div class="color-swatch" data-palette="4" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)" onclick="setPalette(4)"></div>
+              <div class="color-swatch" data-palette="5" style="background:linear-gradient(135deg,#a855f7,#c084fc)" onclick="setPalette(5)"></div>
+            </div>
+
+            <div class="mt-4 d-grid gap-2">
+              <button class="btn-action" onclick="downloadBarChart()">
+                <i class="bi bi-download"></i> Download PNG
+              </button>
+              <button class="btn-action btn-secondary-action" onclick="clearBarChart()">
+                <i class="bi bi-x-circle"></i> Clear Chart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-9">
+          <div class="glass-card chart-card">
+            <div class="chart-placeholder" id="barPlaceholder">
+              <i class="bi bi-bar-chart-line"></i>
+              <p>Select a categorical column to generate a Bar Chart</p>
+            </div>
+            <canvas id="barChartCanvas" style="display:none;"></canvas>
+          </div>
+
+          <!-- Stats & Interpretation -->
+          <div class="d-none" id="barStatsSection">
+            <div class="row g-3 mt-1">
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Total Records</span>
+                  <span class="mini-stat-value" id="barTotal">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Unique Categories</span>
+                  <span class="mini-stat-value" id="barUnique">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Mode</span>
+                  <span class="mini-stat-value" id="barMode">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Missing Values</span>
+                  <span class="mini-stat-value" id="barMissing">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card mt-3">
+              <h6><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretation</h6>
+              <p class="interpretation-text" id="barInterpretation"></p>
+            </div>
+
+            <div class="glass-card mt-3">
+              <h6><i class="bi bi-table text-info me-2"></i>Frequency Table</h6>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>Category</th><th>Count</th><th>Percentage</th><th>Bar</th></tr>
+                  </thead>
+                  <tbody id="freqTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SECTION: HISTOGRAM ─── -->
+  <section class="content-section" id="section-histogram">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Histogram</h1>
+        <p class="section-subtitle">Explore the frequency distribution of numerical variables.</p>
+      </div>
+    </div>
+
+    <div class="no-data-notice d-none" id="histNoData">
+      <i class="bi bi-exclamation-triangle-fill"></i> Please load a dataset first.
+      <button class="btn-sm-link ms-2" onclick="showSection('upload')">Go to Upload</button>
+    </div>
+
+    <div id="histChartContent">
+      <div class="row g-4">
+        <!-- Controls -->
+        <div class="col-lg-3">
+          <div class="glass-card controls-card">
+            <h6 class="control-header"><i class="bi bi-sliders"></i> Chart Controls</h6>
+
+            <label class="control-label">Select Column</label>
+            <select class="custom-select" id="histColumnSelect" onchange="updateHistogram()">
+              <option value="">-- Select Column --</option>
+            </select>
+
+            <label class="control-label mt-3">Number of Bins: <strong id="binsLabel">15</strong></label>
+            <input type="range" class="custom-range" id="binsRange" min="5" max="50" value="15"
+              oninput="document.getElementById('binsLabel').textContent=this.value; updateHistogram()" />
+
+            <label class="control-label mt-3">Color Palette</label>
+            <div class="color-palette" id="histColorPalette">
+              <div class="color-swatch active" data-palette="0" style="background:linear-gradient(135deg,#6366f1,#818cf8)" onclick="setHistPalette(0)"></div>
+              <div class="color-swatch" data-palette="1" style="background:linear-gradient(135deg,#10b981,#34d399)" onclick="setHistPalette(1)"></div>
+              <div class="color-swatch" data-palette="2" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)" onclick="setHistPalette(2)"></div>
+              <div class="color-swatch" data-palette="3" style="background:linear-gradient(135deg,#ef4444,#f87171)" onclick="setHistPalette(3)"></div>
+              <div class="color-swatch" data-palette="4" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)" onclick="setHistPalette(4)"></div>
+              <div class="color-swatch" data-palette="5" style="background:linear-gradient(135deg,#a855f7,#c084fc)" onclick="setHistPalette(5)"></div>
+            </div>
+
+            <div class="mt-4 d-grid gap-2">
+              <button class="btn-action" onclick="downloadHistChart()">
+                <i class="bi bi-download"></i> Download PNG
+              </button>
+              <button class="btn-action btn-secondary-action" onclick="clearHistChart()">
+                <i class="bi bi-x-circle"></i> Clear Chart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="col-lg-9">
+          <div class="glass-card chart-card">
+            <div class="chart-placeholder" id="histPlaceholder">
+              <i class="bi bi-activity"></i>
+              <p>Select a numerical column to generate a Histogram</p>
+            </div>
+            <canvas id="histChartCanvas" style="display:none;"></canvas>
+          </div>
+
+          <!-- Stats -->
+          <div class="d-none" id="histStatsSection">
+            <div class="row g-3 mt-1">
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Mean</span>
+                  <span class="mini-stat-value" id="histMean">—</span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Median</span>
+                  <span class="mini-stat-value" id="histMedian">—</span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Mode</span>
+                  <span class="mini-stat-value" id="histMode">—</span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Min</span>
+                  <span class="mini-stat-value" id="histMin">—</span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Max</span>
+                  <span class="mini-stat-value" id="histMax">—</span>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Std Dev</span>
+                  <span class="mini-stat-value" id="histStd">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mt-0">
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Q1 (25th)</span>
+                  <span class="mini-stat-value" id="histQ1">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Q3 (75th)</span>
+                  <span class="mini-stat-value" id="histQ3">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Skewness</span>
+                  <span class="mini-stat-value" id="histSkew">—</span>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mini-stat-card">
+                  <span class="mini-stat-label">Kurtosis</span>
+                  <span class="mini-stat-value" id="histKurt">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card mt-3">
+              <h6><i class="bi bi-lightbulb-fill text-warning me-2"></i>Interpretation</h6>
+              <p class="interpretation-text" id="histInterpretation"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SECTION: ANALYSIS ─── -->
+  <section class="content-section" id="section-analysis">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Data Analysis</h1>
+        <p class="section-subtitle">Comprehensive statistical analysis of your dataset.</p>
+      </div>
+      <button class="btn-primary-custom" onclick="loadAnalysis()">
+        <i class="bi bi-cpu"></i> Run Analysis
+      </button>
+    </div>
+
+    <div class="no-data-notice d-none" id="analysisNoData">
+      <i class="bi bi-exclamation-triangle-fill"></i> Please load a dataset first.
+      <button class="btn-sm-link ms-2" onclick="showSection('upload')">Go to Upload</button>
+    </div>
+
+    <div id="analysisContent" class="d-none">
+      <!-- Numerical Stats -->
+      <div class="glass-card mb-4">
+        <h5><i class="bi bi-123 text-orange me-2"></i>Numerical Variables — Statistical Summary</h5>
+        <div class="table-wrapper mt-3">
+          <table class="data-table" id="numStatsTable">
+            <thead>
+              <tr>
+                <th>Column</th><th>Mean</th><th>Median</th><th>Mode</th>
+                <th>Std Dev</th><th>Min</th><th>Max</th><th>Skewness</th><th>Missing</th>
+              </tr>
+            </thead>
+            <tbody id="numStatsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Categorical Stats -->
+      <div class="glass-card mb-4">
+        <h5><i class="bi bi-tags-fill text-teal me-2"></i>Categorical Variables — Frequency Summary</h5>
+        <div id="catStatsContainer"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SECTION: EXPORT ─── -->
+  <section class="content-section" id="section-export">
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Export & Download</h1>
+        <p class="section-subtitle">Download charts as PNG or export the processed dataset as CSV.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="glass-card export-card">
+          <div class="export-icon" style="color:#6366f1"><i class="bi bi-bar-chart-line-fill"></i></div>
+          <h5>Bar Chart</h5>
+          <p class="text-muted small">Download the currently displayed bar chart as a high-quality PNG image.</p>
+          <button class="btn-primary-custom w-100" onclick="downloadBarChart()">
+            <i class="bi bi-image"></i> Download Bar Chart PNG
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="glass-card export-card">
+          <div class="export-icon" style="color:#a855f7"><i class="bi bi-activity"></i></div>
+          <h5>Histogram</h5>
+          <p class="text-muted small">Download the currently displayed histogram as a high-quality PNG image.</p>
+          <button class="btn-primary-custom w-100" style="--accent:#a855f7;" onclick="downloadHistChart()">
+            <i class="bi bi-image"></i> Download Histogram PNG
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="glass-card export-card">
+          <div class="export-icon" style="color:#10b981"><i class="bi bi-file-earmark-spreadsheet-fill"></i></div>
+          <h5>Dataset CSV</h5>
+          <p class="text-muted small">Export the currently loaded and processed dataset as a CSV file.</p>
+          <button class="btn-primary-custom w-100" style="--accent:#10b981;" onclick="exportCSV()">
+            <i class="bi bi-download"></i> Export Dataset as CSV
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="glass-card export-card">
+          <div class="export-icon" style="color:#f59e0b"><i class="bi bi-arrow-counterclockwise"></i></div>
+          <h5>Reset Dashboard</h5>
+          <p class="text-muted small">Clear all loaded data and charts to start fresh with a new dataset.</p>
+          <button class="btn-primary-custom w-100" style="--accent:#f59e0b;" onclick="resetDashboard()">
+            <i class="bi bi-trash3"></i> Reset & Clear All
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.main-content -->
+
+<!-- Toast Notification -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Spinner Overlay -->
+<div class="spinner-overlay d-none" id="spinnerOverlay">
+  <div class="spinner-box">
+    <div class="spinner-ring"></div>
+    <span>Processing...</span>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<!-- Main JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
