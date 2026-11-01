@@ -1,6 +1,6 @@
 # 📊 DataViz — Interactive Data Visualization Dashboard
 
-> **PRODIGY Data Science Internship — Task 01**  
+> **PRODIGY Full Stack Web Development Internship — Task 01**  
 > An interactive Flask web dashboard for exploring data distributions using bar charts, histograms, and statistical analysis.
 
 ---
