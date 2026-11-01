@@ -276,4 +276,4 @@ PRODIGY_DS_01/
 
 ---
 
-*Made with ❤️ for Prodigy InfoTech Data Science Internship — Task 01*
+*Made with ❤️ for Prodigy InfoTech Full Stack Web Development Internship — Task 01*
